@@ -52,7 +52,7 @@ environment/project/io.sloeber.core.toolChain.release.1535590023/A.BUILD.MCU/ope
 environment/project/io.sloeber.core.toolChain.release.1535590023/A.BUILD.MCU/value=atmega2560
 environment/project/io.sloeber.core.toolChain.release.1535590023/A.BUILD.PATH/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.1535590023/A.BUILD.PATH/operation=replace
-environment/project/io.sloeber.core.toolChain.release.1535590023/A.BUILD.PATH/value=C\:\\Users\\timhe\\Documents\\sloeber-workspace\\C1_10PSHADOW\\Release
+environment/project/io.sloeber.core.toolChain.release.1535590023/A.BUILD.PATH/value=C\:\\Users\\timhe\\git\\repository\\C1_10PSHADOW\\Release
 environment/project/io.sloeber.core.toolChain.release.1535590023/A.BUILD.PROJECT_NAME/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.1535590023/A.BUILD.PROJECT_NAME/operation=replace
 environment/project/io.sloeber.core.toolChain.release.1535590023/A.BUILD.PROJECT_NAME/value=${ProjName}
@@ -535,7 +535,7 @@ environment/project/io.sloeber.core.toolChain.release.1535590023/JANTJE.UPLOAD/o
 environment/project/io.sloeber.core.toolChain.release.1535590023/JANTJE.UPLOAD/value=Default
 environment/project/io.sloeber.core.toolChain.release.1535590023/JANTJE.WARNING_LEVEL/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.1535590023/JANTJE.WARNING_LEVEL/operation=replace
-environment/project/io.sloeber.core.toolChain.release.1535590023/JANTJE.WARNING_LEVEL/value=true
+environment/project/io.sloeber.core.toolChain.release.1535590023/JANTJE.WARNING_LEVEL/value=false
 environment/project/io.sloeber.core.toolChain.release.1535590023/JANTJE.WORKSPACE_LOCATION/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.1535590023/JANTJE.WORKSPACE_LOCATION/operation=replace
 environment/project/io.sloeber.core.toolChain.release.1535590023/JANTJE.WORKSPACE_LOCATION/value=C\:\\Users\\timhe\\Documents\\sloeber-workspace

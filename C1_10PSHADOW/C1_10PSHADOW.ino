@@ -40,7 +40,7 @@
 //String PS3MoveNavigatonPrimaryMAC = "00:07:04:BA:6F:DF";//Controller 2
 
 byte drivespeed1 = 50; //was 50;set these 3 to whatever speeds work for you. 0-stop, 127-full speed.
-byte drivespeed2 = 75; //was 80.  Recommend beginner: 50 to 75
+byte drivespeed2 = 50; //was 80.  Recommend beginner: 50 to 75
 
 byte turnspeed = 75; //was 58.  50 - the higher this number the faster it will spin in place, lower - easier to control.
 
@@ -58,7 +58,7 @@ int invertTurnDirection = -1;   //This may need to be set to 1 for some configur
 
 #define SHADOW_DEBUG       //uncomment this for console DEBUG output
 #define EEBEL_TEST    //Uncomment to Change things back from my test code
-#define SERVO_EASING //Comment out to use Adafruit PWM code instead.
+//#define SERVO_EASING //Comment out to use Adafruit PWM code instead.
 //#define SOFTWARE_SERIAL //Uncomment out to use software serial
 
 #define NEOPIXEL_TEST //Uncomment to not use test NEOPIXEL test code
@@ -138,7 +138,8 @@ int motorControllerBaudRate = 9600; // Set the baud rate for the Syren motor con
  * !!! Uncomment use PCA9865 in ServoEasing.h to make the expander work !!!
  * Otherwise you will see errors like: "PCA9685_Expander:44:46: error: 'Wire' was not declared in this scope"
  */
-#include "ServoEasing.h"
+
+
 /*
  Works with the following versions
  NeoPatterns 2.0.0
@@ -150,8 +151,6 @@ int motorControllerBaudRate = 9600; // Set the baud rate for the Syren motor con
  */
 
 
-#pragma mark -
-#pragma mark Declarations
 
 //Declarations-----------------------------------------------
 void swapPS3NavControllers(void);
@@ -228,222 +227,7 @@ int lifeformLED = 0;
 int lastUtilStickPos = 127;
 unsigned long lastUtilArmMillis = millis();
 
-#ifdef SERVO_EASING
-    int utilArmMax0 = 180; //180, 450, 600 Fully Open UPPER
-    int utilArmMin0 = 0; //43, 87, 275 Fully Closed UPPER
-    int utilArmMax1 = 180; //43, 87 Fully Open  LOWER
-    int utilArmMin1 = 0;  //180, 450, 320 Fully Closed LOWER
-#else
-    int utilArmMax0 = 450; //450, 600 Fully Open UPPER
-    int utilArmMin0 = 75; //87, 275 Fully Closed UPPER
-    int utilArmMax1 = 75; //87 Fully Open  LOWER
-    int utilArmMin1 = 450;  //450, 320 Fully Closed LOWER
-#endif
-    int lastUtilArmPos0 = utilArmMin0;
-    int lastUtilArmPos1 = utilArmMin1;
 
-
-#ifdef SERVO_EASING
-    struct ServoInfo {
-    uint16_t minDeg;
-    uint16_t maxDeg;
-    int pinNum;
-    int pwmNum;
-    String servoName;
-    };
-
-    ServoInfo pwm3_1Info;
-    ServoInfo pwm3_2Info;
-    ServoInfo pwm3_3Info;
-    ServoInfo pwm3_4Info;
-    ServoInfo pwm3_5Info;
-    ServoInfo pwm3_6Info;
-    ServoInfo pwm3_7Info;
-    ServoInfo pwm3_8Info;
-    ServoInfo pwm3_9Info;
-
-    ServoInfo pwm2_1Info;
-    ServoInfo pwm2_4Info;
-    ServoInfo pwm2_6Info;
-    ServoInfo pwm2_7Info;
-    ServoInfo pwm2_8Info;
-    ServoInfo pwm2_9Info;
-    ServoInfo pwm2_11Info;
-    ServoInfo pwm2_12Info;
-    ServoInfo pwm2_13Info;
-    ServoInfo pwm2_14Info;
-    ServoInfo pwm2_15Info;
-
-    ServoInfo pwm1_4Info;
-
-
-    //SERVO_EASING Parameters//////////////////////
-//    const int pwm3Pie1_Pin = 1;
-//    const int pwm3Pie2_Pin = 2;
-//    const int pwm3Pie3_Pin = 3;
-//    const int pwm3Pie4_Pin = 4;
-//    const int pwm3Pie5_Pin = 5;
-//    const int pwm3Pie6_Pin = 6;
-//    const int pwm3Pie7_Pin = 7;
-//    const int pwm3LifeSlide_Pin = 8;
-//    const int pwm3LifeTurn_Pin = 9;
-//
-//    const int pwm2BuzzSlide_Pin = 1;
-//    const int pwm2LeftBreadPan_Pin = 4;
-//    const int pwm2RightBreadPan_Pin = 6;
-//    const int pwm2CBIDoor_Pin = 7;
-//    const int pwm2LowerUtil_Pin = 8;
-//    const int pwm2UpperUtil_Pin = 9;
-//    const int pwm2BuzzDoor_Pin = 11;
-//    const int pwm2GripperLift_Pin = 12;
-//    const int pwm2Gripper_Pin = 13;
-//    const int pwm2InterfaceLift_Pin = 14;
-//    const int pwm2Interface_Pin = 15;
-//
-//    const int pwm1DataPanel_Pin = 4;
-//
-//    //const int pwm1_DataPanel = 4;
-//    //const int pwm2_RightBreadPanDoor = 6;
-//
-//    /////0-180 Degrees
-//    int pwm3_1_max = 123; // Pie 1 -
-//    int pwm3_1_min = 73; // Pie 1 - Higher Number is lower position
-//    int pwm3_2_max = 115; // Pie 2
-//    int pwm3_2_min = 70; // Pie 2
-//    int pwm3_3_max = 115; // Pie 3
-//    int pwm3_3_min = 70; // Pie 3
-//    int pwm3_4_max = 140 ; // Pie 4
-//    int pwm3_4_min = 79; // Pie 4
-//    int pwm3_5_max = 127; // Pie 5
-//    int pwm3_5_min = 74; // Pie 5
-//    int pwm3_6_max = 108; // Pie 6
-//    int pwm3_6_min = 68; // Pie 6
-//    int pwm3_7_max = 174;  // Pie 7
-//    int pwm3_7_min = 92; // Pie 7
-//    int pwm3_8_max = 174;  // Lifeform Slide
-//    int pwm3_8_min = 92; // Lifeform Slide
-//    int pwm3_9_max = 174;  // Lifeform Turn
-//    int pwm3_9_min = 92; // Lifeform Turn
-////    int pwm3_10_max = 2047; // HEAD LED
-////    int pwm3_11_max = 2047; // HEAD LED
-////    int pwm3_12_max = 2047; // HEAD LED
-////    int pwm3_13_max = 2047; // HEAD LED
-////    int pwm3_14_max = 2047; // HEAD LED
-////    int pwm3_15_max = 2047; // LIFEFORM LED
-//
-//    int pwm2_0_max = 275; // ZAPPER SLIDE
-//    int pwm2_0_min = 600; // 600ZAPPER SLIDE
-//    int pwm2_1_max = 182; // BUZZ SLIDE
-//    int pwm2_1_min = 56; // 800 BUZZ SLIDE
-////    int pwm2_2_max = 50;  //
-////    int pwm2_2_min = 250; //
-////    int pwm2_3_max = 380; //
-////    int pwm2_3_min = 850; //
-//    int pwm2_4_max = 60; // Left BreadPan Door 359
-//    int pwm2_4_min = 90; // Left BreadPanDoor 540
-////    int pwm2_5_max = 310; //
-////    int pwm2_5_min = 550; //
-//    int pwm2_6_max = 93; // 410 Right BreadPan Door
-//    int pwm2_6_min = 61; // 560 Right BreadPan Door
-//    int pwm2_7_max = 63; // 410, 370,410 CBI Door
-//    int pwm2_7_min = 47; // 500,520,540,550,580 CBI Door
-//    //  pwm2_8 = Lower Arm
-//    //  pwm2_9 = Uppare Arm
-//    //  int pwm2_10_max = 270; // CARD DISPENSER
-//    int pwm2_11_max = 165; // 250 BUZZ DOOR 370
-//    int pwm2_11_min = 94; // BUZZ DOOR 700
-//    int pwm2_12_max = 130; // 545,200 GRIPPER LIFTER
-//    int pwm2_12_min = 68; // 200,545 GRIPPER LIFTER
-//    int pwm2_13_max = 120; // 400 GRIPPER
-//    int pwm2_13_min = 68; // 800 GRIPPER
-//    int pwm2_14_max = 11; // 500 INTERFACE LIFTER
-//    int pwm2_14_min = 169; // 30 INTERFACE LIFTER
-//    int pwm2_15_max = 123; // 550 NTERFACE
-//    int pwm2_15_min = 82; // 120 INTERFACE
-//
-////    int pwm1_14_max = 350; // LEGO
-////    int pwm1_14_min = 100; // LEGO
-////    int pwm1_15_max = 270; // EXTINGUISHER
-////    int pwm1_15_min = 600; // EXTINGUISHER
-////    int pwm1_12_max = 275; // Panel Drawer
-////    int pwm1_12_min = 600; // Panel Drawer
-////    int pwm1_11_max = 2047; // Panel Drawer LED
-////    int pwm1_10_max = 600; // Rear Bolt Door
-////    int pwm1_10_min = 100; // Rear Bolt Door
-//    int pwm1_4_max = 37; // 475, 540 DATA PANEL 359
-//    int pwm1_4_min = 47; // 375,350DATA PANEL 540
-
-#else
-#pragma mark -
-#pragma mark AdafruitServoLimits
-    ////Adafruit PWM Parameters///////////////////
-    int pwm3_1_max = 220; // 200Pie 1 -
-    int pwm3_1_min = 370; // 350 Pie 1 - Higher Number is lower position
-    int pwm3_2_max = 235; // 220 185 Pie 2
-    int pwm3_2_min = 385; // 370 Pie 2
-    int pwm3_3_max = 220; // 195 175 140 Pie 3
-    int pwm3_3_min = 360; // 350 Pie 3
-    int pwm3_4_max = 205 ; // Pie 4
-    int pwm3_4_min = 365; // 350 Pie 4
-    int pwm3_5_max = 220; // Pie 5
-    int pwm3_5_min = 375; // 360 350 Pie 5
-    int pwm3_6_max = 275; // Pie 6
-    int pwm3_6_min = 440; // Pie 6
-    int pwm3_7_max = 140; // Pie 7
-    int pwm3_7_min = 285; // 275 Pie 7
-    int pwm3_8_max = 275; // Lifeform Slide
-    int pwm3_8_min = 600; // Lifeform Slide
-    int pwm3_9_max = 380; // Lifeform Turn
-    int pwm3_9_min = 130; // Lifeform Turn
-    int pwm3_10_max = 2047; // HEAD LED
-    int pwm3_11_max = 2047; // HEAD LED
-    int pwm3_12_max = 2047; // HEAD LED
-    int pwm3_13_max = 2047; // HEAD LED
-    int pwm3_14_max = 2047; // HEAD LED
-    int pwm3_15_max = 2047; // LIFEFORM LED
-
-    int pwm2_0_max = 275; // ZAPPER SLIDE
-    int pwm2_0_min = 600; // 600ZAPPER SLIDE
-    int pwm2_1_max = 275; // BUZZ SLIDE
-    int pwm2_1_min = 600; // 400, 800 BUZZ SLIDE
-    int pwm2_2_max = 50;  //
-    int pwm2_2_min = 250; //
-    int pwm2_3_max = 380; //
-    int pwm2_3_min = 850; //
-    int pwm2_4_max = 565; // 540,Left BreadPan Door 359 Gripper
-    int pwm2_4_min = 359; // Left BreadPanDoor 540
-    int pwm2_5_max = 310; //
-    int pwm2_5_min = 550; //
-    int pwm2_6_max = 390; // 400,350,410 Right BreadPan Door Interface
-    int pwm2_6_min = 540; // 530, 560 Right BreadPan Door
-    int pwm2_7_max = 370; // 365, 410, 370,410 CBI Door
-    int pwm2_7_min = 580; // 495,500,520,540,550,580 CBI Door
-    //  pwm2_8 = Lower Arm
-    //  pwm2_9 = Uppare Arm
-    int pwm2_10_max = 270; // CARD DISPENSER
-    int pwm2_11_max = 220; // 250 BUZZ DOOR 370
-    int pwm2_11_min = 475; // 460, BUZZ DOOR 700
-    int pwm2_12_max = 545; // 545,200 GRIPPER LIFTER
-    int pwm2_12_min = 150; // 200,545 GRIPPER LIFTER
-    int pwm2_13_max = 390; // 400 GRIPPER
-    int pwm2_13_min = 650; // 800 GRIPPER
-    int pwm2_14_max = 30; // 500 INTERFACE LIFTER
-    int pwm2_14_min = 500; // 30 INTERFACE LIFTER
-    int pwm2_15_max = 525; // 550 NTERFACE
-    int pwm2_15_min = 165; // 120 INTERFACE
-
-    int pwm1_14_max = 350; // LEGO
-    int pwm1_14_min = 100; // LEGO
-    int pwm1_15_max = 270; // EXTINGUISHER
-    int pwm1_15_min = 600; // EXTINGUISHER
-    int pwm1_12_max = 275; // Panel Drawer
-    int pwm1_12_min = 600; // Panel Drawer
-    int pwm1_11_max = 2047; // Panel Drawer LED
-    int pwm1_10_max = 600; // Rear Bolt Door
-    int pwm1_10_min = 100; // Rear Bolt Door
-    int pwm1_4_max = 530; // 485, 475, 540 DATA PANEL 359
-    int pwm1_4_min = 385; // 375,350DATA PANEL 540
-#endif
 
 boolean buzzActivated = false;
 boolean buzzSpinning = false;
@@ -470,10 +254,11 @@ byte automateAction = 0;
 #ifdef SOFTWARE_SERIAL
 	MiniMaestro maestrobody(maestroSerial); //create "maestrobody as the maestro object for the body on Serial 3
 #else
-	MiniMaestro maestrobody(Serial1);
+	//MiniMaestro maestrobody(Serial1);
+	MiniMaestro maestrobody(Serial1, 255,12);
 #endif
-MiniMaestro maestrohead(Serial1); //create "maestrobody as the maestro object for the head on Software Serial
-
+	//MiniMaestro maestrohead(Serial1); //create "maestrobody as the maestro object for the head on Software Serial
+	MiniMaestro maestrohead(Serial1, 255, 13);
 
 Sabertooth *ST=new Sabertooth(SABERTOOTH_ADDR, Serial2);
 Sabertooth *SyR=new Sabertooth(SYREN_ADDR, Serial2);
@@ -483,48 +268,7 @@ const int HOLO_DELAY = 5000; //up to 20 second delay
 uint32_t holoFrontRandomTime = 0;
 uint32_t holoFrontLastTime = 0;
 
-  #ifdef SERVO_EASING
-      ///ServoEasingSetup////////////////////////////////////////////////
-//      ServoEasing pwm1_Servo1(0x40, &Wire);
-//      ServoEasing pwm1_Servo2(0x40, &Wire);
-//      ServoEasing pwm1_Servo3(0x40, &Wire);
-      ServoEasing pwm1_Servo4(0x40, &Wire); //Data Panel Door
 
-
-      ServoEasing pwm2_Servo1(0x41, &Wire); //BuzzSlide
-//      ServoEasing pwm2_Servo2(0x41, &Wire); //Motivator
-//      ServoEasing pwm2_Servo3(0x41, &Wire); //Zapper 3-7
-      ServoEasing pwm2_Servo4(0x41, &Wire); //Left BreadPan Door
-//      ServoEasing pwm2_Servo5(0x41, &Wire);
-      ServoEasing pwm2_Servo6(0x41, &Wire); //RightBread Pan Door
-      ServoEasing pwm2_Servo7(0x41, &Wire); //CBI Door
-      ServoEasing pwm2_Servo8(0x41, &Wire); //Lower Utility Arm
-      ServoEasing pwm2_Servo9(0x41, &Wire); //Upper Utility Arm
-      ServoEasing pwm2_Servo11(0x41, &Wire); //Buzz Door
-      ServoEasing pwm2_Servo12(0x41, &Wire); //GripperLift
-      ServoEasing pwm2_Servo13(0x41, &Wire); //Gripper
-      ServoEasing pwm2_Servo14(0x41, &Wire); //Interface Lift
-      ServoEasing pwm2_Servo15(0x41, &Wire); //Interface
-
-      ServoEasing pwm3_Servo1(0x42, &Wire); //Pie 1
-      ServoEasing pwm3_Servo2(0x42, &Wire); //Pie 2
-      ServoEasing pwm3_Servo3(0x42, &Wire); //Pie 3
-      ServoEasing pwm3_Servo4(0x42, &Wire); //Pie 4
-      ServoEasing pwm3_Servo5(0x42, &Wire); //Pie 5
-      ServoEasing pwm3_Servo6(0x42, &Wire); //Pie 6
-      ServoEasing pwm3_Servo7(0x42, &Wire); //Pie 7
-      ServoEasing pwm3_Servo8(0x42, &Wire); //LifeSlide
-      ServoEasing pwm3_Servo9(0x42, &Wire); //LifeTurn
-
-      ///////////////////////////////////////////////////////////////////
-  #else
-//      Adafruit_PWMServoDriver pwm1 = Adafruit_PWMServoDriver(0x40);
-//      Adafruit_PWMServoDriver pwm2 = Adafruit_PWMServoDriver(0x41);
-//      Adafruit_PWMServoDriver pwm3 = Adafruit_PWMServoDriver(0x42);
-      ServoEasing pwm1(0x40, &Wire);
-      ServoEasing pwm2(0x41, &Wire);
-      ServoEasing pwm3(0x42, &Wire);
-  #endif
 
 /////// Setup for USB and Bluetooth Devices
 
@@ -580,67 +324,10 @@ void WobbleHead(){
 
 }
 void silenceMiddleServos(){
-   delay(400);
-   pwm1_Servo4.detach();
-   pwm2_Servo7.detach();
-   pwm2_Servo11.detach();
+
 }
 void silenceServos(){
-  #ifdef SERVO_EASING
-      /////////////////////////////////////////////////
-      //TODO:  stopAllServos(); does this work?
-   //stopAllServos();
-      pwm3_Servo1.detach(); //Pie1
-      pwm3_Servo2.detach(); //Pie2
-      pwm3_Servo3.detach(); //Pie3
-      pwm3_Servo4.detach(); //Pie4
-      pwm3_Servo5.detach(); //Pie5
-      pwm3_Servo6.detach(); //Pie6
-      pwm3_Servo7.detach(); //Pie7
 
-      pwm2_Servo1.detach(); //BuzzSlide
-      pwm2_Servo4.detach(); //LeftBreadPan
-      pwm2_Servo6.detach(); //RightBreadPan
-      pwm2_Servo7.detach(); //CBI Door
-      pwm2_Servo8.detach(); //LowerUtil
-      pwm2_Servo9.detach(); //UpperUtil
-      pwm2_Servo11.detach(); //Buzz Door
-      pwm2_Servo12.detach();  //GripperLift
-      pwm2_Servo13.detach(); //Gripper
-      pwm2_Servo14.detach(); //Interface Lift
-      pwm2_Servo15.detach(); //Interface
-
-      pwm1_Servo4.detach();  //DataPanel Door
-      ////////////////////////////////////////////////
-  #else
-    pwm2.setPWM(2, 0, 0); // MOTIVATOR
-    pwm2.setPWM(3, 0, 0); // Zapper
-    pwm2.setPWM(4, 0, 0); // Zapper
-    pwm2.setPWM(5, 0, 0); // Zapper
-    pwm2.setPWM(6, 0, 0); // Zapper
-    pwm2.setPWM(7, 0, 0); // Zapper
-    pwm2.setPWM(8, 0, 0); // Lower Utilty Arm
-    pwm2.setPWM(9, 0, 0); // Upper Utilty Arm
-    pwm2.setPWM(11, 0, 0); // Buzz Door
-    pwm2.setPWM(12, 0, 0); // GRIPPER
-    pwm2.setPWM(13, 0, 0); // GRIPPER
-    pwm2.setPWM(14, 0, 0); // GRIPPER
-    pwm2.setPWM(15, 0, 0); // GRIPPER
-
-    pwm3.setPWM(0, 0, 0); // TOP PANNEL
-    pwm3.setPWM(1, 0, 0); // PIE PANEL 1
-    pwm3.setPWM(2, 0, 0); // PIE PANEL 2
-    pwm3.setPWM(3, 0, 0); // PIE PANEL 3
-    pwm3.setPWM(4, 0, 0); // PIE PANEL 4
-    pwm3.setPWM(5, 0, 0); // PIE PANEL 5
-    pwm3.setPWM(6, 0, 0); // SIDE PANEL 7
-    pwm3.setPWM(7, 0, 0); // SIDE PANEL 7
-
-    pwm1.setPWM(15, 0, 0); // EXTINGUISHER
-    pwm1.setPWM(14, 0, 0); // Rear Door Lego
-    pwm1.setPWM(10, 0, 0); // Rear Door Bolt
-    pwm1.setPWM(4,0, 0);// DataPanel
-   #endif
 }
 
 
@@ -858,201 +545,18 @@ void soundControl(){
 // ==============================================================
 
 void pieOpenAll(){
-    #ifdef SERVO_EASING
-      Serial.print("pieOpenAll ServoEasing");
-     pwm3_Servo7.write(pwm3_7Info.maxDeg); // DOME PIE 7
-     pwm3_Servo6.write(pwm3_6Info.maxDeg); // DOME PIE 6
-     pwm3_Servo5.write(pwm3_5Info.maxDeg); // DOME PIE 5
-     pwm3_Servo4.write(pwm3_4Info.maxDeg); // DOME PIE 4
-     pwm3_Servo3.write(pwm3_3Info.maxDeg); // DOME PIE 3
-     pwm3_Servo2.write(pwm3_2Info.maxDeg); // DOME PIE 2
-     pwm3_Servo1.write(pwm3_1Info.maxDeg); // DOME PIE 1
 
-    #else
-       pwm3.setPWM(7, 0, pwm3_7_max); // DOME PIE 7
-       pwm3.setPWM(6, 0, pwm3_6_max); // DOME PIE 6
-       pwm3.setPWM(5, 0, pwm3_5_max); // DOME PIE 5
-       pwm3.setPWM(4, 0, pwm3_4_max); // DOME PIE 4
-       pwm3.setPWM(3, 0, pwm3_3_max); // DOME PIE 3
-       pwm3.setPWM(2, 0, pwm3_2_max); // DOME PIE 2
-       pwm3.setPWM(1, 0, pwm3_1_max); // DOME PIE 1
-       //       delay(300);
-       Serial.print("pieOpenAll PWM only");
-     #endif
-      delay(300);
-      silenceServos();
     }
 
 void pieCloseAll(){
 
-  #ifdef SERVO_EASING
-     pwm3_Servo7.write(pwm3_7Info.minDeg); // DOME PIE 7
-     pwm3_Servo6.write(pwm3_6Info.minDeg); // DOME PIE 6
-     pwm3_Servo5.write(pwm3_5Info.minDeg); // DOME PIE 5
-     pwm3_Servo4.write(pwm3_4Info.minDeg); // DOME PIE 4
-     pwm3_Servo3.write(pwm3_3Info.minDeg); // DOME PIE 3
-     if (!lifeformActivated){
-      pwm3_Servo2.write(pwm3_2Info.minDeg); // DOME PIE 2
-     }
-     pwm3_Servo1.write(pwm3_1Info.minDeg); // DOME PIE 1--
-  #else
-     pwm3.setPWM(7, 0, pwm3_7_min); // DOME PIE 7
-     pwm3.setPWM(6, 0, pwm3_6_min); // DOME PIE 6
-     pwm3.setPWM(5, 0, pwm3_5_min); // DOME PIE 5
-     pwm3.setPWM(4, 0, pwm3_4_min); // DOME PIE 4
-     pwm3.setPWM(3, 0, pwm3_3_min); // DOME PIE 3
-     if (!lifeformActivated){
-      pwm3.setPWM(2, 0, pwm3_2_min); // DOME PIE 2
-     }
-     pwm3.setPWM(1, 0, pwm3_1_min); // DOME PIE 1--
-   #endif
-     delay(400);//400
-     silenceServos();
 }
 
 void openAll(boolean motivator = false, boolean openUtil = false){
-  #ifdef SERVO_EASING
-      pwm3_Servo1.easeTo(pwm3_1Info.maxDeg);//Pie1
 
-      pwm3_Servo2.easeTo(pwm3_2Info.maxDeg);//Pie2
-
-      pwm3_Servo3.easeTo(pwm3_3Info.maxDeg); //Pie3
-
-      pwm3_Servo4.easeTo(pwm3_4Info.maxDeg);//Pie4
-
-      pwm3_Servo5.easeTo(pwm3_5Info.maxDeg);//Pie5
-
-      pwm3_Servo6.easeTo(pwm3_6Info.maxDeg);//Pie6
-
-      pwm3_Servo7.easeTo(pwm3_7Info.maxDeg);//Pie7
-
-      pwm2_Servo8.easeTo(pwm2_8Info.maxDeg); //Lower Util
-
-      pwm2_Servo9.easeTo(pwm3_9Info.maxDeg); //UpperUtil
-
-      pwm2_Servo4.easeTo(pwm2_4Info.maxDeg); //Interface Door
-
-      pwm2_Servo6.easeTo(pwm2_6Info.maxDeg); //Gripper Door
-
-      pwm2_Servo11.easeTo(pwm2_11Info.maxDeg); //Buzz Door
-      pwm1_Servo4.easeTo(pwm1_4Info.maxDeg);//DataPanel Door
-
-      pwm2_Servo7.easeTo(pwm2_7Info.maxDeg); //CBI
-
-     if (motivator){
-       //pwm2.setPWM(2, 0, 100); // MOTIVATOR
-       //processSoundCommand(5);
-     }
-  #else
-     pwm3.setPWM(7, 0, pwm3_7_max); // DOME PIE 7
-     pwm3.setPWM(6, 0, pwm3_6_max); // DOME PIE 6
-     pwm3.setPWM(5, 0, pwm3_5_max); // DOME PIE 5
-     pwm3.setPWM(4, 0, pwm3_4_max); // DOME PIE 4
-     pwm3.setPWM(3, 0, pwm3_3_max); // DOME PIE 3
-     pwm3.setPWM(2, 0, pwm3_2_max); // DOME PIE 2
-     pwm3.setPWM(1, 0, pwm3_1_max); // DOME PIE 1
-     //Serial.print(pwm3_1_max);
-
-     pwm2.setPWM(3, 0, pwm2_3_max); // Zapper
-     pwm2.setPWM(11, 0, pwm2_11_max); // BuzzSaw
-     pwm1.setPWM(4,0, pwm1_4_max);// DataPanel
-
-     if (openUtil){
-      moveUtilArms(0,0,0,utilArmMax0);
-      moveUtilArms(1,0,0,utilArmMax1);
-     }
-
-     pwm2.setPWM(4, 0, pwm2_4_max); // RT
-     pwm2.setPWM(5, 0, pwm2_5_max); // RB
-     pwm2.setPWM(6, 0, pwm2_6_max); // LT
-     pwm2.setPWM(7, 0, pwm2_7_max); // LB
-
-     if (motivator){
-       pwm2.setPWM(2, 0, 100); // MOTIVATOR
-       processSoundCommand(5);
-     }
-   #endif
-     delay(500);
-     silenceServos();
 }
 
 void closeAll(){
-    #ifdef SERVO_EASING
-      pwm2_Servo8.write(pwm2_8Info.minDeg); //Lower Util
-      delay(300);
-      pwm2_Servo9.write(pwm2_9Info.minDeg); //UpperUtil
-      delay(300);
-      pwm3_Servo1.write(pwm3_1Info.minDeg);
-      if (!lifeformActivated){
-          pwm3_Servo2.write(pwm3_2Info.minDeg);
-      }
-      pwm3_Servo3.write(pwm3_3Info.minDeg); //Pie
-      pwm3_Servo4.write(pwm3_4Info.minDeg);
-      pwm3_Servo5.write(pwm3_5Info.minDeg);
-      pwm3_Servo6.write(pwm3_6Info.minDeg);
-      pwm3_Servo7.write(pwm3_7Info.minDeg);
-
-
-
-      if (!miniSawActivated){
-      pwm2_Servo4.write(pwm2_4Info.minDeg); //Interface Door
-         delay(200);
-      }
-      if (!InterfaceArmActivated){
-        pwm2_Servo6.write(pwm2_6Info.minDeg); //Gripper Door
-         delay(200);
-      }
-      pwm2_Servo7.write(pwm2_7Info.minDeg); //CBI Door
-      if (!buzzActivated){
-        pwm2_Servo11.write(pwm2_11Info.minDeg); //Buzz Door
-         delay(200);
-      }
-      pwm1_Servo4.write(pwm2_4Info.minDeg);// DataPanel
-      delay(500);
-      silenceServos();
-
-    #else
-
-      pwm3.setPWM(7, 0, pwm3_7_min); // DOME PIE 7
-      pwm3.setPWM(6, 0, pwm3_6_min); // DOME PIE 6
-      pwm3.setPWM(5, 0, pwm3_5_min); // DOME PIE 5
-      pwm3.setPWM(4, 0, pwm3_4_min); // DOME PIE 4
-      pwm3.setPWM(3, 0, pwm3_3_min); // DOME PIE 3
-      if (!lifeformActivated){
-        pwm3.setPWM(2, 0, pwm3_2_min); // DOME PIE 2
-      }
-      pwm3.setPWM(1, 0, pwm3_1_min); // DOME PIE 1--
-      Serial.print("CloseAll pwm3_1_min = ");//--
-      Serial.println(pwm3_1_min);//--
-
-
-      moveUtilArms(0,1,255,utilArmMin0);
-      moveUtilArms(1,1,255,utilArmMin1);
-
-      if (!miniSawActivated){
-        pwm2.setPWM(4, 0, pwm2_4_min); // RT
-        pwm2.setPWM(5, 0, pwm2_5_min); // RB
-      }
-      if (!InterfaceArmActivated){
-        pwm2.setPWM(6, 0, pwm2_6_min); // LT
-        pwm2.setPWM(7, 0, pwm2_7_min); // LB
-      }
-
-      if (!zapperActivated){
-        pwm2.setPWM(3, 0, pwm2_3_min); // Zapper
-      }
-      if (!buzzActivated){
-        pwm2.setPWM(11, 0, pwm2_11_min); // Buzz
-      }
-
-      pwm1.setPWM(14, 0, pwm1_14_min); // Rear Door Lego
-      pwm1.setPWM(10, 0, pwm1_10_min); // Rear Door Bolt
-      pwm1.setPWM(4,0, pwm1_4_min);// DataPanel
-    #endif
-    delay(400);
-//    Serial.print("CloseAll pwm3_1_min = ");//--
-//    Serial.println(pwm3_1_min);//--
-    silenceServos();
     maestrobody.restartScript(0);//Close Body Stuff
 }
 
@@ -1060,61 +564,7 @@ void closeAll(){
 
 
 void moveUtilArms(int arm, int direction, int position, int setposition){
-    currentMillis = millis();
-    if (currentMillis > (lastUtilArmMillis)){
-      if (arm == 1 && direction == 0 && setposition < lastUtilArmPos1){
-        #ifdef SERVO_EASING
-        //TODO: build a converter for degrees to milleseconds or use a differnt funtion!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            //pwm2_Servo8.startEaseTo(setposition, 30);
-          #else
-            pwm2.setPWM(8, 0, setposition);
-          #endif
-        if (setposition > utilArmMax1){
-          lastUtilArmPos1 = setposition-5;
-        }
-        lastUtilArmMillis = currentMillis;
-      }else if (arm == 1 && direction == 1 && setposition > lastUtilArmPos1){
-        #ifdef SERVO_EASING
-        //TODO: build a converter for degrees to milleseconds or use a differnt funtion!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            //pwm2_Servo8.startEaseTo(setposition, 30);
-          #else
-            pwm2.setPWM(8, 0, setposition);
-          #endif
-        if (setposition < utilArmMin1){
-          lastUtilArmPos1 = setposition+5;
-        }else{
-          lastUtilArmPos1 = setposition-10;
-        }
-        lastUtilArmMillis = currentMillis;
-      }else if (arm == 0 && direction == 1 && setposition < lastUtilArmPos0){
-//        Serial.print("Arm0 = ");
-//        Serial.print(setposition);
-        #ifdef SERVO_EASING
-        //TODO: build a converter for degrees to milleseconds or use a differnt function!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            //pwm2_Servo9.startEaseTo(setposition, 30);
-          #else
-            pwm2.setPWM(9, 0, setposition);
-          #endif
-        if (setposition > utilArmMin0){
-          lastUtilArmPos0 = setposition-5;
-        }else{
-          lastUtilArmPos0 = setposition+10;
-        }
-        lastUtilArmMillis = currentMillis;
-      }else if (arm == 0 && direction == 0 && setposition > lastUtilArmPos0){
-        #ifdef SERVO_EASING
-        //TODO: build a converter for degrees to milleseconds or use a differnt funtion!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            //pwm2_Servo9.startEaseTo(setposition, 30);
-          #else
-            pwm2.setPWM(9, 0, setposition);
-          #endif
-        if (setposition < utilArmMax0){
-          lastUtilArmPos0 = setposition+5;
-        }
-        lastUtilArmMillis = currentMillis;
-      }
-      lastUtilStickPos = position;
-    }
+
 }
 
 void freakOut(){
@@ -1178,33 +628,7 @@ void centerDomeLoop(){
 }
 
 void blinkEyes(){
-  #ifdef SERVO_EASING
-    //TODO: Write a NeoPixel Blinky routine for this area!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  #else
-      pwm3.setPWM(10,0,0);
-      pwm3.setPWM(11,0,0);
-      pwm3.setPWM(12,0,0);
-      pwm3.setPWM(13,0,0);
-      pwm3.setPWM(14,0,0);
-      delay(500);
-      pwm3.setPWM(10,0,pwm3_10_max);
-      pwm3.setPWM(11,0,pwm3_11_max);
-      pwm3.setPWM(12,0,pwm3_12_max);
-      pwm3.setPWM(13,0,pwm3_13_max);
-      pwm3.setPWM(14,0,pwm3_14_max);
-      delay(300);
-      pwm3.setPWM(10,0,0);
-      pwm3.setPWM(11,0,0);
-      pwm3.setPWM(12,0,0);
-      pwm3.setPWM(13,0,0);
-      pwm3.setPWM(14,0,0);
-      delay(300);
-      pwm3.setPWM(10,0,pwm3_10_max);
-      pwm3.setPWM(11,0,pwm3_11_max);
-      pwm3.setPWM(12,0,pwm3_12_max);
-      pwm3.setPWM(13,0,pwm3_13_max);
-      pwm3.setPWM(14,0,pwm3_14_max);
-    #endif
+
 }
 
 void badMotivatorLoop(){
@@ -1504,8 +928,8 @@ void ps3ProcessCommands(PS3BT* myPS3 = PS3Nav){
 
 
 
-#pragma mark -
-#pragma mark L2 and Arrow Command
+
+//****************** mark L2 and Arrow Command
 
 	//AllToolsUp/Out
 
@@ -1515,6 +939,7 @@ void ps3ProcessCommands(PS3BT* myPS3 = PS3Nav){
 	   if (myPS3->getButtonClick(DOWN)){
 		 if (allToolsOut){
 			 maestrobody.restartScript(ALL_CLOSED);
+			 maestrohead.restartScript(1);
 			 allToolsOut = false;
 		 }else{
 			 maestrobody.restartScript(ALL_TOOLS_OUT_UP);
@@ -1547,34 +972,16 @@ void ps3ProcessCommands(PS3BT* myPS3 = PS3Nav){
 #pragma mark BuzzDoorOnly
             //BuzzDoorOnly
       if (myPS3->getButtonClick(LEFT)){
-        if (!buzzDoorOpen){
-           pwm2_Servo11.easeTo(pwm2_11Info.maxDeg);
-           delay(300);
-           pwm2_Servo11.detach();
-           buzzDoorOpen = true;
-        }else{
-           pwm2_Servo11.easeTo(pwm2_11Info.minDeg);
-           delay(300);
-           pwm2_Servo11.detach();
-           buzzDoorOpen = false;
-        }
+
       }
 #pragma mark - Utility Grab
       if (myPS3->getButtonClick(RIGHT)){
         if (!utilityGrab){
-//           pwm2_Servo8.easeTo(pwm2_8Info.maxDeg);
-//           pwm2_Servo9.easeTo(pwm2_9Info.maxDeg,300);
-//           delay(300);
-//           pwm2_Servo8.detach();
-//           pwm2_Servo9.detach();
+
         	maestrobody.restartScript(UTILITYARM_OPEN);
            utilityGrab = true;
         }else{
-//           pwm2_Servo8.easeTo(pwm2_8Info.minDeg);
-//           pwm2_Servo9.easeTo(pwm2_9Info.minDeg,300);
-//           delay(300);
-//           pwm2_Servo8.detach();
-//           pwm2_Servo9.detach();
+
         	maestrobody.restartScript(UTILITYARM_CLOSE);
            utilityGrab = false;
         }
@@ -1605,85 +1012,21 @@ void ps3ProcessCommands(PS3BT* myPS3 = PS3Nav){
           }
         // Rear Bolt Door (Previously Freak Out)
         if(myPS3->getButtonClick(LEFT)){
-           /*
-           if(droidFreakedOut){
-              closeAll();
-              processSoundCommand(6);
-              droidFreakedOut =false;
-           }else{
-              droidFreakOut = true;
-           }
-           */
-          processSoundCommand(80,88);
-          #ifdef SERVO_EASING
 
-          #else
-          pwm1.setPWM(10, 0, pwm1_10_max);  // Rear bolt Door
-          delay(800);
-          pwm1.setPWM(10, 0, pwm1_10_min);
-          delay(300);
-          pwm1.setPWM(10, 0, 0);
-          #endif
+          processSoundCommand(80,88);
+
         }
     }
 
 
-    #pragma mark -
-    #pragma mark    LifeForm Scanner
+
     // Lifeform Scanner
 
-    #ifdef SERVO_EASING
-    //TODO: Convert this to Servo Easing... Getting lazy as I don't have a scanner yet.
-//      if(myPS3->getButtonPress(L2)&&myPS3->getButtonPress(L1)&&myPS3->getButtonClick(L3)){
-//        if (!lifeformActivated){
-//          //pwm3.setPWM(9,0,((pwm3_9_max-pwm3_9_min)/2));
-//          pwm3.setPWM(2, 0, pwm3_2_max); // DOME PIE 2
-//          delay(200);
-//          pwm3.setPWM(8, 0, pwm3_8_max); // Lifeform Slide
-//          delay(3000);
-//          pwm3.setPWM(8, 0, 0); // Lifeform Slide
-//          silenceServos();
-//          lifeformActivated = true;
-//        }else {
-//          pwm3.setPWM(9,0,(pwm3_9_min+30));
-//          pwm3.setPWM(8, 0, pwm3_8_min); // Lifeform Slide
-//          delay(4000);
-//          pwm3.setPWM(8, 0, 0); // Lifeform Slide
-//          pwm3.setPWM(15, 0, 0);
-//          pwm3.setPWM(2, 0, pwm3_2_min); // DOME PIE 2
-//          delay(400);
-//          silenceServos();
-//          lifeformActivated = false;
-//          lifeformPosition = pwm3_9_min;
-//          lifeformDir = 0;
-//        }
-//     }
-    #else
+
        if(myPS3->getButtonPress(L2)&&myPS3->getButtonPress(L1)&&myPS3->getButtonClick(L3)){
-          if (!lifeformActivated){
-            //pwm3.setPWM(9,0,((pwm3_9_max-pwm3_9_min)/2));
-            pwm3.setPWM(2, 0, pwm3_2_max); // DOME PIE 2
-            delay(200);
-            pwm3.setPWM(8, 0, pwm3_8_max); // Lifeform Slide
-            delay(3000);
-            pwm3.setPWM(8, 0, 0); // Lifeform Slide
-            silenceServos();
-            lifeformActivated = true;
-          }else {
-            pwm3.setPWM(9,0,(pwm3_9_min+30));
-            pwm3.setPWM(8, 0, pwm3_8_min); // Lifeform Slide
-            delay(4000);
-            pwm3.setPWM(8, 0, 0); // Lifeform Slide
-            pwm3.setPWM(15, 0, 0);
-            pwm3.setPWM(2, 0, pwm3_2_min); // DOME PIE 2
-            delay(400);
-            silenceServos();
-            lifeformActivated = false;
-            lifeformPosition = pwm3_9_min;
-            lifeformDir = 0;
-          }
+
        }
-     #endif
+
 
      // Open Pie Panels
      if(myPS3->getButtonPress(L2)&&myPS3->getButtonPress(L1)&&myPS3->getButtonClick(UP)){
@@ -1720,228 +1063,92 @@ void ps3ProcessCommands(PS3BT* myPS3 = PS3Nav){
         //closeAll();
         maestrobody.restartScript(ALL_CLOSED); //Close All
      }
+
 #pragma mark -
 #pragma mark Side Panels
      // Open Side Pannels (Or if Interface Arm is Out, Grip it)///////////////////////////
-    #ifdef SERVO_EASING
+
       if(myPS3->getButtonPress(L2)&&myPS3->getButtonPress(L1)&&myPS3->getButtonClick(RIGHT)){
       if (!InterfaceArmActivated && !miniSawActivated){
         if (!sidePanelsOpen){
           Serial.println("Open BreadPan Doors");
-//           pwm2_Servo4.easeTo(pwm2_4Info.maxDeg); // Gripper Door
-//           pwm2_Servo6.easeTo(pwm2_6Info.maxDeg); // Interface Door
-           //silenceServos();
+
           maestrobody.restartScript(BREADPANS_OPEN);
            sidePanelsOpen = true;
         }else{
           Serial.println("Close BreadPan Doors");
-//           pwm2_Servo4.easeTo(pwm2_4Info.minDeg); // RT
-//           pwm2_Servo6.easeTo(pwm2_6Info.minDeg); // LT
-           //delay(300);
-           //silenceServos();
+
           maestrobody.restartScript(BREADPANS_CLOSED);
            sidePanelsOpen = false;
         }
       }else if (InterfaceArmActivated){
-//          pwm2_Servo13.easeTo(pwm2_13Info.maxDeg); //Gripper
-//          pwm2_Servo13.easeTo(pwm2_13Info.minDeg);
-//          pwm2_Servo13.easeTo(pwm2_13Info.maxDeg);
-//          pwm2_Servo13.easeTo(pwm2_13Info.minDeg);
-//          pwm2_Servo13.easeTo(pwm2_13Info.maxDeg);
-//          pwm2_Servo13.easeTo(pwm2_13Info.minDeg);
+
           maestrobody.restartScript(INTERFACE_BOINK_BOINK);
 
-          //silenceServos();
+
       }
       delay(300);
       silenceServos();
      }
-     #else
-       if(myPS3->getButtonPress(L2)&&myPS3->getButtonPress(L1)&&myPS3->getButtonClick(RIGHT)){
-        if (!InterfaceArmActivated && !miniSawActivated){
-          if (!sidePanelsOpen){
-             pwm2.setPWM(4, 0, pwm2_4_max); // RT
-             pwm2.setPWM(5, 0, pwm2_5_max); // RB
-             pwm2.setPWM(6, 0, pwm2_6_max); // LT
-             //pwm2.setPWM(7, 0, pwm2_7_max); // CBI Door
-             delay(300);
-             silenceServos();
-             sidePanelsOpen = true;
-          }else{
-             pwm2.setPWM(4, 0, pwm2_4_min); // RT
-             pwm2.setPWM(5, 0, pwm2_5_min); // RB
-             pwm2.setPWM(6, 0, pwm2_6_min); // LT
-             //pwm2.setPWM(7, 0, pwm2_7_min); // CBI Door
-             delay(500);
-             silenceServos();
-             sidePanelsOpen = false;
-          }
-        }else if (InterfaceArmActivated){
-          pwm2.setPWM(13,0,pwm2_13_max);
-          delay(300);
-          pwm2.setPWM(13,0,pwm2_13_min);
-          delay(300);
-          pwm2.setPWM(13,0,pwm2_13_max);
-          delay(300);
-          pwm2.setPWM(13,0,pwm2_13_min);
-          delay(300);
-          pwm2.setPWM(13,0,pwm2_13_max);
-          delay(300);
-          pwm2.setPWM(13,0,pwm2_13_min);
-          delay(300);
-          silenceServos();
-        }
-       }
-     #endif
+
 
     #pragma mark -
     #pragma mark    Middle Panels
      // Open Middle Pannels (Or if MiniSaw is Out, Spin it)//////////////////////
-     #ifdef SERVO_EASING
        if(myPS3->getButtonPress(L2)&&myPS3->getButtonPress(L1)&&myPS3->getButtonClick(LEFT)){
         if (!InterfaceArmActivated && !miniSawActivated){
           if (!midPanelsOpen){
-//             midPanelsOpen = true;
-//             Serial.println("midPanelsOpen = True");
-             pwm1_Servo4.easeTo(pwm1_4Info.maxDeg);//DataPanel Door
-             pwm2_Servo7.easeTo(pwm2_7Info.maxDeg);//CBI Door
-             pwm2_Servo11.easeTo(pwm2_11Info.maxDeg);//Buzz Door
-             //delay(400);// Delay is built into the silenceMiddleServos() function
-             silenceMiddleServos();
-             //silenceServos();
+
              midPanelsOpen = true;
              Serial.println("midPanelsOpen = True");
 
           }else{
              //midPanelsOpen = false;
              Serial.println("midPanelsOpen = false");
-             pwm1_Servo4.easeTo(pwm1_4Info.minDeg);//DataPanel Door
-             pwm2_Servo7.easeTo(pwm2_7Info.minDeg);//CBI Door
-             pwm2_Servo11.easeTo(pwm2_11Info.minDeg);//Buzz Door
-             //delay(400);// Delay is built into the silenceMiddleServos() function
-             silenceMiddleServos();
-             //silenceServos();
+
              midPanelsOpen = false;
           }
           //delay(400);
           //silenceServos();
         }else if (miniSawActivated){
         	maestrobody.restartScript(MINISAW_PULSE);
-//          if (interfaceOut){
-//            pwm2_Servo15.easeTo(pwm2_15Info.minDeg);
-//            //delay(500);
-//            interfaceOut = false;
-//            }else{
-//            pwm2_Servo15.easeTo(pwm2_15Info.maxDeg);
-//            //delay(450);
-//            pwm2_Servo15.easeTo(pwm2_15Info.minDeg);
-//            //delay(250);
-//            pwm2_Servo15.easeTo(pwm2_15Info.maxDeg);
-//            //delay(450);
-//            pwm2_Servo15.easeTo(pwm2_15Info.minDeg);
-//            interfaceOut = true;
-//            }
-        }
-//       delay(300);
-//       silenceServos();
-       }
-     #else
-       if(myPS3->getButtonPress(L2)&&myPS3->getButtonPress(L1)&&myPS3->getButtonClick(LEFT)){
-        if (!InterfaceArmActivated && !miniSawActivated){
-          if (!midPanelsOpen){
-             pwm2.setPWM(3, 0, pwm2_3_max); // Zapper Door
-             pwm1.setPWM(4, 0, pwm1_4_max); // Data Panel Door
-             pwm2.setPWM(7, 0, pwm2_7_max); // CBI Door
-             pwm2.setPWM(11, 0, pwm2_11_max); // Buzz Door
-             delay(400);
-             silenceServos();
-             midPanelsOpen = true;
-          }else{
-             pwm2.setPWM(3, 0, pwm2_3_min); // Zapper Door
-             pwm1.setPWM(4, 0, pwm1_4_min); // Data Panel Door
-             pwm2.setPWM(7, 0, pwm2_7_min); // CBI Door
-             pwm2.setPWM(11, 0, pwm2_11_min); // Buzz Door
-             delay(400);
-             silenceServos();
-             midPanelsOpen = false;
-          }
-        }else if (miniSawActivated){
-          if (interfaceOut){
-            pwm2.setPWM(15,0,pwm2_15_min);
-            delay(500);
-            interfaceOut = false;
-            silenceServos();
-          }else{
-            pwm2.setPWM(15,0,pwm2_15_max);
-            delay(450);
-            pwm2.setPWM(15,0,pwm2_15_min);
-            delay(250);
-            pwm2.setPWM(15,0,pwm2_15_max);
-            delay(450);
-            interfaceOut = true;
-            silenceServos();
-          }
         }
        }
-     #endif
 
-     #ifdef SERVO_EASING
 
-     #else
+
     // Panel Drawer
       if(myPS3->getButtonPress(PS)&&myPS3->getButtonClick(L1)){
           if (!drawerActivated){
-            pwm1.setPWM(12, 0, pwm1_12_min); // Panel Drawer
-            delay(1600);
-            pwm1.setPWM(12, 0, 0); // Panel Drawer
+
             drawerActivated = true;
           }else{
-              pwm1.setPWM(12, 0, pwm1_12_max); // Panel Drawer
-              delay(1600);
-              pwm1.setPWM(12, 0, 0); // Panel Drawer
+
               drawerActivated = false;
           }
       }
-     #endif
+
 
     // Lego
-    #ifdef SERVO_EASING
-    //ServoEasing code here
-     #else
+
   if(myPS3->getButtonPress(PS)&&myPS3->getButtonClick(DOWN)){
         if (zapperActivated){
            digitalWrite(PIN_ZAPPER,HIGH);
-           delay(1000);
+          // delay(1000);
            digitalWrite(PIN_ZAPPER,LOW);
         }else{
 
-          pwm1.setPWM(13, 0, 300);
-          delay(145);
-          pwm1.setPWM(13, 0, 580);
-          delay(210);
-          processSoundCommand(80,88);
-          pwm1.setPWM(14, 0, pwm1_14_max);
-          delay(800);
-          pwm1.setPWM(14, 0, pwm1_14_min);
-          delay(300);
-          pwm1.setPWM(14, 0, 0);
-          //pwm1.setPWM(13, 0, 0);
+
         }
       }
-    #endif
+
 
     // Card Dispenser
-    #ifdef SERVO_EASING
-      //ServoEasingCode here
-    #else
+
       if(myPS3->getButtonPress(L1)&&myPS3->getButtonClick(L3)){
-        pwm2.setPWM(10, 0, pwm2_10_max);
-        delay(2850);
-        //pwm2.setPWM(10, 0, pwm2_10_min);
-        //delay(100);
-        pwm2.setPWM(10, 0, 0);
+
     }
-    #endif
+
 
     #pragma mark -
     #pragma mark    Volume
@@ -1964,9 +1171,9 @@ void ps3ProcessCommands(PS3BT* myPS3 = PS3Nav){
 #pragma mark Lower UtilityArm
 
         // Lower Utility Arm
-#ifdef SERVO_EASING
+
    if(myPS3->getButtonPress(L1) && !myPS3->getButtonPress(L2)){
-     int joystickPositionY = myPS3->getAnalogHat(LeftHatY);
+/*     int joystickPositionY = myPS3->getAnalogHat(LeftHatY);
      if (joystickPositionY < 95 && !myPS3->getButtonPress(L3)){
        int utilArmPos1 = (map(joystickPositionY, 0, 125, utilArmMax1, utilArmMin1)); //87 -310
         pwm2_Servo8.easeTo(utilArmPos1, 200);
@@ -1984,31 +1191,10 @@ void ps3ProcessCommands(PS3BT* myPS3 = PS3Nav){
        }
       }else{
           pwm2_Servo8.detach();
-     }
+     }*/
    }
 
-#else
-   if(myPS3->getButtonPress(L1) && !myPS3->getButtonPress(L2)){
-     int joystickPositionY = myPS3->getAnalogHat(LeftHatY);
-     if (joystickPositionY < 95 && !myPS3->getButtonPress(L3)){
-       int utilArmPos1 = (map(joystickPositionY, 0, 125, utilArmMax1, utilArmMin1)); //87 -310
-       if (lastUtilArmPos1 > utilArmPos1){
-         moveUtilArms(1,0,joystickPositionY,utilArmPos1);
-       }else{
-         moveUtilArms(1,0,joystickPositionY,lastUtilArmPos1);
-       }
-      }else if (joystickPositionY > 145 && !myPS3->getButtonPress(L3)){
-       int utilArmPos1 = (map(joystickPositionY, 127, 225, (lastUtilArmPos1-10), utilArmMin1));
-       if (lastUtilArmPos1 < utilArmPos1){
-         moveUtilArms(1,1,joystickPositionY,utilArmPos1);
-       }else{
-         moveUtilArms(1,1,joystickPositionY,lastUtilArmPos1);
-       }
-      }else{
-          pwm2.setPWM(8, 0, 0);
-     }
-   }
-#endif
+
 
 
 
@@ -2016,145 +1202,88 @@ void ps3ProcessCommands(PS3BT* myPS3 = PS3Nav){
 
      // Upper Utility Arm
      if(myPS3->getButtonPress(L2) && !myPS3->getButtonPress(L1)){
-       int joystickPositionY = myPS3->getAnalogHat(LeftHatY);
-       if (joystickPositionY < 95 && !myPS3->getButtonPress(L3)){
-         int utilArmPos0 = (map(joystickPositionY, 0, 125, utilArmMax0, utilArmMin0)); //87 -310
-//        Serial.print("\n\rLastArmPos0= ");
-//        Serial.print(lastUtilArmPos0);
-//        Serial.print("\n\rutilArmPos0= ");
-//        Serial.print(utilArmPos0);
-         if (lastUtilArmPos0 < utilArmPos0){
-//           Serial.print("\n\rUpper Utility Arm Y = ");
-//           Serial.print(utilArmPos0);
-           moveUtilArms(0,0,joystickPositionY,utilArmPos0);
-         }else{
-           moveUtilArms(0,0,joystickPositionY,lastUtilArmPos0);
-         }
-        }else if (joystickPositionY > 145 && !myPS3->getButtonPress(L3)){
-         int utilArmPos0 = (map(joystickPositionY, 127, 225, (lastUtilArmPos0+10), utilArmMin0));
-         if (lastUtilArmPos0 > utilArmPos0){
-           moveUtilArms(0,1,joystickPositionY,utilArmPos0);
-         }else{
-           moveUtilArms(0,1,joystickPositionY,lastUtilArmPos0);
-         }
-        }else{
-          #ifdef SERVO_EASING
-            //pwm2_Servo9.detach();
-          #else
-            pwm2.setPWM(9, 0, 0);
-          #endif
-       }
+//       int joystickPositionY = myPS3->getAnalogHat(LeftHatY);
+//       if (joystickPositionY < 95 && !myPS3->getButtonPress(L3)){
+//         int utilArmPos0 = (map(joystickPositionY, 0, 125, utilArmMax0, utilArmMin0)); //87 -310
+////        Serial.print("\n\rLastArmPos0= ");
+////        Serial.print(lastUtilArmPos0);
+////        Serial.print("\n\rutilArmPos0= ");
+////        Serial.print(utilArmPos0);
+//         if (lastUtilArmPos0 < utilArmPos0){
+////           Serial.print("\n\rUpper Utility Arm Y = ");
+////           Serial.print(utilArmPos0);
+//           moveUtilArms(0,0,joystickPositionY,utilArmPos0);
+//         }else{
+//           moveUtilArms(0,0,joystickPositionY,lastUtilArmPos0);
+//         }
+//        }else if (joystickPositionY > 145 && !myPS3->getButtonPress(L3)){
+//         int utilArmPos0 = (map(joystickPositionY, 127, 225, (lastUtilArmPos0+10), utilArmMin0));
+//         if (lastUtilArmPos0 > utilArmPos0){
+//           moveUtilArms(0,1,joystickPositionY,utilArmPos0);
+//         }else{
+//           moveUtilArms(0,1,joystickPositionY,lastUtilArmPos0);
+//         }
+//        }else{
+//          #ifdef SERVO_EASING
+//            //pwm2_Servo9.detach();
+//          #else
+//            pwm2.setPWM(9, 0, 0);
+//          #endif
+//       }
       }
 
      // UTILITY ARMS
      if(myPS3->getButtonPress(L2)&&myPS3->getButtonPress(L1)){
        randomDomeMovement();
-       int joystickPositionY = myPS3->getAnalogHat(LeftHatY);
-       if (joystickPositionY < 110 && !myPS3->getButtonPress(L3)){
-         int utilArmPos0 = (map(joystickPositionY, 0, 125, utilArmMax0, utilArmMin0)); //533? - 300
-         int utilArmPos1 = (map(joystickPositionY, 0, 125, utilArmMax1, utilArmMin1)); //87 -310
-         if (lastUtilArmPos1 > utilArmPos1){
-           moveUtilArms(0,0,joystickPositionY,utilArmPos0);
-           moveUtilArms(1,0,joystickPositionY,utilArmPos1);
-         }else{
-           moveUtilArms(0,0,joystickPositionY,lastUtilArmPos0);
-           moveUtilArms(1,0,joystickPositionY,lastUtilArmPos1);
-         }
-        }else if (joystickPositionY > 125 && !myPS3->getButtonPress(L3)){
-         int utilArmPos0 = (map(joystickPositionY, 127, 225, utilArmMin0, (lastUtilArmPos0+10)));
-         int utilArmPos1 = (map(joystickPositionY, 127, 225, (lastUtilArmPos1-10), utilArmMin1));
-         if (lastUtilArmPos1 < utilArmPos1){
-           moveUtilArms(0,1,joystickPositionY,utilArmPos0);
-           moveUtilArms(1,1,joystickPositionY,utilArmPos1);
-         }else{
-           moveUtilArms(0,1,joystickPositionY,lastUtilArmPos0);
-           moveUtilArms(1,1,joystickPositionY,lastUtilArmPos1);
-         }
-        }else{
-          #ifdef SERVO_EASING
-            //pwm2_Servo8.detach();
-            //pwm2_Servo9.detach();
-          #else
-            pwm2.setPWM(8, 0, 0);
-            pwm2.setPWM(9, 0, 0);
-          #endif
-       }
-     }else if (!myPS3->getButtonPress(L1)){
-          #ifdef SERVO_EASING
-            //pwm2_Servo8.detach();
-            //pwm2_Servo9.detach();
-          #else
-            pwm2.setPWM(8, 0, 0);
-            pwm2.setPWM(9, 0, 0);
-          #endif
+//       int joystickPositionY = myPS3->getAnalogHat(LeftHatY);
+//       if (joystickPositionY < 110 && !myPS3->getButtonPress(L3)){
+//         int utilArmPos0 = (map(joystickPositionY, 0, 125, utilArmMax0, utilArmMin0)); //533? - 300
+//         int utilArmPos1 = (map(joystickPositionY, 0, 125, utilArmMax1, utilArmMin1)); //87 -310
+//         if (lastUtilArmPos1 > utilArmPos1){
+//           moveUtilArms(0,0,joystickPositionY,utilArmPos0);
+//           moveUtilArms(1,0,joystickPositionY,utilArmPos1);
+//         }else{
+//           moveUtilArms(0,0,joystickPositionY,lastUtilArmPos0);
+//           moveUtilArms(1,0,joystickPositionY,lastUtilArmPos1);
+//         }
+//        }else if (joystickPositionY > 125 && !myPS3->getButtonPress(L3)){
+//         int utilArmPos0 = (map(joystickPositionY, 127, 225, utilArmMin0, (lastUtilArmPos0+10)));
+//         int utilArmPos1 = (map(joystickPositionY, 127, 225, (lastUtilArmPos1-10), utilArmMin1));
+//         if (lastUtilArmPos1 < utilArmPos1){
+//           moveUtilArms(0,1,joystickPositionY,utilArmPos0);
+//           moveUtilArms(1,1,joystickPositionY,utilArmPos1);
+//         }else{
+//           moveUtilArms(0,1,joystickPositionY,lastUtilArmPos0);
+//           moveUtilArms(1,1,joystickPositionY,lastUtilArmPos1);
+//         }
+//        }else{
+//          #ifdef SERVO_EASING
+//            //pwm2_Servo8.detach();
+//            //pwm2_Servo9.detach();
+//          #else
+//            pwm2.setPWM(8, 0, 0);
+//            pwm2.setPWM(9, 0, 0);
+//          #endif
+//       }
+//     }else if (!myPS3->getButtonPress(L1)){
+//          #ifdef SERVO_EASING
+//            //pwm2_Servo8.detach();
+//            //pwm2_Servo9.detach();
+//          #else
+//            pwm2.setPWM(8, 0, 0);
+//            pwm2.setPWM(9, 0, 0);
+//          #endif
      }
 
     #pragma mark -
     #pragma mark    Buzz Saw
 
     // BUZZ SAW
-    #ifdef SERVO_EASING
-      if(myPS3->getButtonPress(PS)&&myPS3->getButtonClick(CIRCLE)){
-        if (!buzzActivated){
-          processSoundCommand(79);
- //         buzzSawMillis = millis()+15000;
-          buzzActivated = true;
-           Serial.println("buzzActivated = true");
-          buzzSpinning = true;
-          digitalWrite(PIN_BUZZSAW, HIGH);//spin Saw
-          pwm2_Servo11.easeToD(pwm2_11Info.maxDeg,250); // Buzz Door
-          pwm2_Servo11.detach();
-          //delay(200);
-          //silenceServos();
-          pwm2_Servo1.easeTo(-100); // Buzz Slide
-          delay(1650);//1800
-          pwm2_Servo1.detach(); // Buzz Slide
-        }else if (buzzActivated){
-          buzzActivated = false;
-           Serial.println("buzzActivated = false");
 
-          digitalWrite(PIN_BUZZSAW, LOW);
-          pwm2_Servo1.easeTo(100); // Buzz Slide close
-          delay(1650);//1800
-          buzzSpinning = false;
-          pwm2_Servo1.detach(); // Silence Buzz Slide
-          pwm2_Servo11.easeTo(pwm2_11Info.minDeg); // Buzz Door
-           delay(250);
-           pwm2_Servo11.detach();
-          //delay(200);
-          //pwm2_Servo1.detach(); // Buzz Slide
-          //silenceServos();
-         //Serial.println("BuzzSAW!");
-        }
-      }
-    #else
       if(myPS3->getButtonPress(PS)&&myPS3->getButtonClick(CIRCLE)){
-        if (!buzzActivated){
-          processSoundCommand(79);
-          buzzSawMillis = millis()+15000;
-          buzzActivated = true;
-          buzzSpinning = true;
-          digitalWrite(PIN_BUZZSAW, HIGH);
-          pwm2.setPWM(11, 0, pwm2_11_max); // Buzz Door
-          delay(200);
-          silenceServos();
-          pwm2.setPWM(1, 0, pwm2_1_max); // Buzz Slide
-          delay(2100);//1800
-          pwm2.setPWM(1, 0, 0); // Buzz Slide
-        }else if (buzzActivated){
-          buzzActivated = false;
-          buzzSpinning = false;
-          digitalWrite(PIN_BUZZSAW, LOW);
-          pwm2.setPWM(1, 0, pwm2_1_min); // Buzz Slide
-          delay(2225);//1800
-          pwm2.setPWM(1, 0, 0); // Buzz Slide
-          pwm2.setPWM(11, 0, pwm2_11_min); // Buzz Door
-          delay(200);
-          silenceServos();
-         Serial.println("BuzzSAW!");
-        }
+
       }
-    #endif
+
     // CENTER DOME
     if (!myPS3->getButtonPress(L2)&&!myPS3->getButtonPress(L1)&&!myPS3->getButtonPress(PS)){
       if (myPS3->getButtonClick(CIRCLE)){
@@ -2167,175 +1296,62 @@ void ps3ProcessCommands(PS3BT* myPS3 = PS3Nav){
 #pragma mark -
 #pragma mark InterfaceArm
     // Chopper Interface Arm/////////////////////////////////////////////
-    #ifdef SERVO_EASING
+
       if(myPS3->getButtonPress(L2)&&myPS3->getButtonPress(L1)&&myPS3->getButtonClick(CIRCLE)){
-      //if(myPS3->getButtonClick(CIRCLE)){
+
         if (!InterfaceArmActivated){
           Serial.println("Interface Activated");
-          //trigger.trigger(24);
-          //Swap 6 to 4... Ian has his gripper and interface reversed from R-2
-//          pwm2_Servo4.easeTo(pwm2_4Info.maxDeg); // Door
-//          pwm2_Servo12.easeTo(pwm2_12Info.maxDeg);  //Gripper Lifter Up
+
             InterfaceArmActivated = true;
-//          pwm2_Servo13.easeTo(pwm2_13Info.maxDeg); //Gripper
-//          pwm2_Servo13.easeTo(pwm2_13Info.minDeg);
-//          pwm2_Servo13.easeTo(pwm2_13Info.maxDeg);
-//          pwm2_Servo13.easeTo(pwm2_13Info.minDeg);
-//          pwm2_Servo13.easeTo(pwm2_13Info.maxDeg);
-//          pwm2_Servo13.easeTo(pwm2_13Info.minDeg);
-          //silenceServos();
+
             maestrobody.restartScript(INTERFACE_SEQUENCE);
         }else{
           Serial.println("Interface Arm DeActivated");
-//          pwm2_Servo12.easeTo(pwm2_12Info.minDeg); //Lower the arm
-//          delay(500);
-//          pwm2_Servo4.easeTo(pwm2_4Info.minDeg); // close the door
-          //silenceServos();
+
           maestrobody.restartScript(INTERFACE_CLOSE);
           InterfaceArmActivated = false;
         }
-        //silenceServos();
+
       }
-    #else
-      if(myPS3->getButtonPress(L2)&&myPS3->getButtonPress(L1)&&myPS3->getButtonClick(CIRCLE)){
-      //if(myPS3->getButtonClick(CIRCLE)){
-        if (!InterfaceArmActivated){
-          //trigger.trigger(24);
-          //Swap 6 to 4... Ian has his gripper and interface reversed from R-2
-          pwm2.setPWM(4, 0, pwm2_4_max); // LT
-          //pwm2.setPWM(7, 0, pwm2_7_max); // CBI Door
-          delay(300);
-          pwm2.setPWM(12, 0, pwm2_12_max);
-          InterfaceArmActivated = true;
-          delay(300);
-          pwm2.setPWM(13,0,pwm2_13_max);
-          delay(300);
-          pwm2.setPWM(13,0,pwm2_13_min);
-          delay(300);
-          pwm2.setPWM(13,0,pwm2_13_max);
-          delay(300);
-          pwm2.setPWM(13,0,pwm2_13_min);
-          delay(300);
-          pwm2.setPWM(13,0,pwm2_13_max);
-          delay(300);
-          pwm2.setPWM(13,0,pwm2_13_min);
-          delay(300);
-          silenceServos();
-        }else{
-          pwm2.setPWM(12, 0, pwm2_12_min);
-          delay(1000);
-          pwm2.setPWM(4, 0, pwm2_4_min); // LT
-          //pwm2.setPWM(7, 0, pwm2_7_min); // CBI Door
-          delay(300);
-          silenceServos();
-          InterfaceArmActivated = false;
-        }
-      }
-    #endif
+
 
 #pragma mark  -
 #pragma mark MiniSaw
 
     // MiniSaw Arm
-    #ifdef SERVO_EASING
+
       if(myPS3->getButtonPress(L2)&&myPS3->getButtonPress(L1)&&myPS3->getButtonClick(CROSS)){
       //if(myPS3->getButtonClick(CROSS)){
         Serial.println("MiniSaw Arm");
         if (!miniSawActivated){
-//          //Swap 4 to 6...Ian has his gripper and interface arms reversed from R2
-//          pwm2_Servo6.easeTo(pwm2_6Info.maxDeg); // Interface Door
-//          delay(200); //not sure I need these delays
-//          //silenceServos();
-//          pwm2_Servo14.easeTo(pwm2_14Info.maxDeg);//Interface Lifter
+
         	maestrobody.restartScript(MINISAW_SEQUENCE);
           miniSawActivated = true;
-//          //delay(500);
-//          pwm2_Servo15.easeTo(pwm2_15Info.maxDeg);
-//          //delay(500);
-//          pwm2_Servo15.easeTo(pwm2_15Info.minDeg); //Interface Twister Tool
-//           pwm2_Servo15.easeTo(pwm2_15Info.maxDeg);
-//           //delay(500);
-//           pwm2_Servo15.easeTo(pwm2_15Info.minDeg); //Interface Twister Tool
-//          //delay(500);
-//          silenceServos();
+
         }else{
-//          pwm2_Servo15.easeTo(pwm2_15Info.minDeg); //Interface Twister Tool
-//          pwm2_Servo14.easeTo(pwm2_14Info.minDeg); //Interface lifter
-//          delay(300);
-//          pwm2_Servo6.easeTo(pwm2_6Info.minDeg); // Door
-//          delay(300);
-//          silenceServos();
+
         	maestrobody.restartScript(MINISAW_PULSE);
         	maestrobody.restartScript(MINISAW_CLOSE);
           miniSawActivated = false;
         }
       }
-    #else
-      if(myPS3->getButtonPress(L2)&&myPS3->getButtonPress(L1)&&myPS3->getButtonClick(CROSS)){
-      //if(myPS3->getButtonClick(CROSS)){
-        Serial.println("Interface Arm");
-        if (!miniSawActivated){
-          //Swap 4 to 6...Ian has his gripper and interface arms reversed from R2
-          pwm2.setPWM(6, 0, pwm2_6_max); // LT
-          //pwm2.setPWM(5, 0, pwm2_5_max); // LB  i don't use two servos on the doors
-          delay(200);
-          silenceServos();
-          pwm2.setPWM(14, 0, pwm2_14_max);
-          miniSawActivated = true;
-          delay(500);
-          pwm2.setPWM(15,0,pwm2_15_max);
-          delay(500);
-          pwm2.setPWM(15,0,pwm2_15_min); //Interface Twister Tool
-          delay(500);
-          silenceServos();
-        }else{
-          pwm2.setPWM(15,0,pwm2_15_min); //Interface Twister Tool
-          pwm2.setPWM(14, 0, pwm2_14_min); //Interface lifter
-          delay(1000);
-          pwm2.setPWM(6, 0, pwm2_6_min); // LT
-          //pwm2.setPWM(5, 0, pwm2_5_min); // LB  not used.  I only have 1 servo per breadpan door
-          delay(300);
-          silenceServos();
-          miniSawActivated = false;
-        }
-      }
-    #endif
+
     // ZAPPER
-    #ifdef SERVO_EASING
-      //No Zapper
-    #else
+
       if(myPS3->getButtonPress(PS)&&myPS3->getButtonClick(CROSS)){
          if (!zapperActivated){
-            pwm2.setPWM(3, 0, 380); // Zapper
-            delay(200);
-            silenceServos();
-            pwm2.setPWM(0, 0, pwm2_0_max); // Zapper Slide
-            delay(1800);
-            pwm2.setPWM(0, 0, 0); // Zapper Slide
+
             zapperActivated = true;
          }else if (zapperActivated){
             zapperActivated = false;
-            pwm2.setPWM(0, 0, pwm2_0_min); // Zapper Slide
-            delay(2000);
-            pwm2.setPWM(0, 0, 0); // Zapper Slide
-            pwm2.setPWM(3, 0, 850); // Zapper
-            delay(500);
-            silenceServos();
+
           }
        }
-     #endif
+
 
     // Extinguisher
     if(myPS3->getButtonPress(PS)&&myPS3->getButtonClick(L3)){
-      #ifdef SERVO_EASING
-        //No Extinguisher yet
-      #else
-        pwm1.setPWM(15, 0, pwm1_15_max);
-        delay(300);
-        pwm1.setPWM(15, 0, pwm1_15_min);
-        delay(100);
-        pwm1.setPWM(15, 0, 0);
-      #endif
+
     }
 
     // Disiabe the DriveStick
@@ -2828,252 +1844,6 @@ void setup(){
     #endif
 
 
-#pragma mark -
-#pragma mark ServoLimits
-    // START UP SERVO CONTROLLERS
-    #ifdef SERVO_EASING
-    ////ServoEasing setup////////////////////////////////////////////
-   //I used a servo tester with a microseconds readout to set range of servo in the attach command.
-   //Then I set the range of each servo from 0 to 180 degrees.
-   //I also set reverse rotation at the attach command so 0 is always closed an 180 is always fully open.
-    Serial.print(F("\r\nUsing Servo Easing"));
-    pwm3_1Info.servoName = "Pie1";
-    pwm3_1Info.minDeg = 0;//73
-    pwm3_1Info.maxDeg = 180;//140,160, 173
-    pwm3_1Info.pinNum = 1;
-    pwm3_1Info.pwmNum = 3;
-    pwm3_2Info.servoName = "Pie2";
-    pwm3_2Info.minDeg = 0;//70
-    pwm3_2Info.maxDeg = 180;//130, 135,115
-    pwm3_2Info.pinNum = 2;
-    pwm3_2Info.pwmNum = 3;
-    pwm3_3Info.servoName = "Pie3";
-    pwm3_3Info.minDeg = 0;//70
-    pwm3_3Info.maxDeg = 180;//145, 115
-    pwm3_3Info.pinNum = 3;
-    pwm3_3Info.pwmNum = 3;
-    pwm3_4Info.servoName = "Pie4";
-    pwm3_4Info.minDeg = 0;//79
-    pwm3_4Info.maxDeg = 180;//140
-    pwm3_4Info.pinNum = 4;
-    pwm3_4Info.pwmNum = 3;
-    pwm3_5Info.servoName = "Pie5";
-    pwm3_5Info.minDeg = 0;//74
-    pwm3_5Info.maxDeg = 180;//140, 127
-    pwm3_5Info.pinNum = 5;
-    pwm3_5Info.pwmNum = 3;
-    pwm3_6Info.servoName = "Pie6";
-    pwm3_6Info.minDeg = 0;//50, 68
-    pwm3_6Info.maxDeg = 180;//125,108
-    pwm3_6Info.pinNum = 6;
-    pwm3_6Info.pwmNum = 3;
-    pwm3_7Info.servoName = "Pie7";
-    pwm3_7Info.minDeg = 0;//75, 92
-    pwm3_7Info.maxDeg = 180;//180, 174
-    pwm3_7Info.pinNum = 7;
-    pwm3_7Info.pwmNum = 3;
-    pwm3_8Info.servoName = "LifeSlider";
-    pwm3_8Info.minDeg = 92;
-    pwm3_8Info.maxDeg = 174;
-    pwm3_8Info.pinNum = 8;
-    pwm3_8Info.pwmNum = 3;
-    pwm3_9Info.servoName = "LifeRotate";
-    pwm3_9Info.minDeg = 92;
-    pwm3_9Info.maxDeg = 174;
-    pwm3_9Info.pinNum = 9;
-    pwm3_9Info.pwmNum = 3;
-
-    pwm2_1Info.servoName = "BuzzSlide";
-    pwm2_1Info.minDeg = 179;
-    pwm2_1Info.maxDeg = 20;
-    pwm2_1Info.pinNum = 1;
-    pwm2_1Info.pwmNum = 2;
-    pwm2_4Info.servoName = "LeftBreadPan";//gripper door
-    pwm2_4Info.minDeg = 0;//90
-    pwm2_4Info.maxDeg = 180;//160,90, 60
-    pwm2_4Info.pinNum = 4;
-    pwm2_4Info.pwmNum = 2;
-    pwm2_6Info.servoName = "RightBreadPan";//Interface door
-    pwm2_6Info.minDeg = 0;//15
-    pwm2_6Info.maxDeg = 180;//65, 95, 140, 93
-    pwm2_6Info.pinNum = 6;
-    pwm2_6Info.pwmNum = 2;
-    pwm2_7Info.servoName = "CBIDoor";
-    pwm2_7Info.minDeg = 0;//36, 40, 35, 30, 25, 15,47
-    pwm2_7Info.maxDeg = 180;//70, 75, 85, 90, 105, 115, 140, 85, 64
-    pwm2_7Info.pinNum = 7;
-    pwm2_7Info.pwmNum = 2;
-    pwm2_8Info.servoName = "LowerUtil";
-    pwm2_8Info.minDeg = 0;//35
-    pwm2_8Info.maxDeg = 180;//145
-    pwm2_8Info.pinNum = 8;
-    pwm2_8Info.pwmNum = 2;
-    pwm2_9Info.servoName = "UpperUtil";
-    pwm2_9Info.minDeg = 0;//5
-    pwm2_9Info.maxDeg = 180;//145
-    pwm2_9Info.pinNum = 9;
-    pwm2_9Info.pwmNum = 2;
-    pwm2_11Info.servoName = "BuzzDoor";
-    pwm2_11Info.minDeg = 51;//51,50, 45, 35,30, 20, 94
-    pwm2_11Info.maxDeg = 120;//120,200, 180, 164
-    pwm2_11Info.pinNum = 11;
-    pwm2_11Info.pwmNum = 2;
-    pwm2_12Info.servoName = "GripperLift";
-    pwm2_12Info.minDeg = 0;//10, 68
-    pwm2_12Info.maxDeg = 180;//140, 130
-    pwm2_12Info.pinNum = 12;
-    pwm2_12Info.pwmNum = 2;
-    pwm2_13Info.servoName = "Gripper";
-    pwm2_13Info.minDeg = 0;//-25, 72
-    pwm2_13Info.maxDeg = 180;//35, 120
-    pwm2_13Info.pinNum = 13;
-    pwm2_13Info.pwmNum = 2;
-    pwm2_14Info.servoName = "InterfaceLift";
-    pwm2_14Info.minDeg = 0;//169
-    pwm2_14Info.maxDeg = 180;//11
-    pwm2_14Info.pinNum = 14;
-    pwm2_14Info.pwmNum = 2;
-    pwm2_15Info.servoName = "Interface";
-    pwm2_15Info.minDeg = 0;//30
-    pwm2_15Info.maxDeg = 180;//140
-    pwm2_15Info.pinNum = 15;
-    pwm2_15Info.pwmNum = 2;
-
-    pwm1_4Info.servoName = "DataPanel";
-    pwm1_4Info.minDeg = 0;//65,77, 47
-    pwm1_4Info.maxDeg = 180;//37
-    pwm1_4Info.pinNum = 4;
-    pwm1_4Info.pwmNum = 1;
-
-
-//      pwm3_Servo1.attach(pwm3_1Info.pinNum,2400,620);
-//      pwm3_Servo1.write(pwm3_1Info.minDeg);
-//      pwm3_Servo2.attach(pwm3_2Info.pinNum, 2400,620);
-//      pwm3_Servo2.write(pwm3_2Info.minDeg);
-//      pwm3_Servo3.attach(pwm3_3Info.pinNum, 2400,620);
-//      pwm3_Servo3.write(pwm3_3Info.minDeg);
-//      pwm3_Servo4.attach(pwm3_4Info.pinNum,2400,620);
-//      pwm3_Servo4.write(pwm3_4Info.minDeg);
-//      pwm3_Servo5.attach(pwm3_5Info.pinNum, 2400,620);
-//      pwm3_Servo5.write(pwm3_5Info.minDeg);
-//      pwm3_Servo6.attach(pwm3_6Info.pinNum, 2400,620);
-//      pwm3_Servo6.write(pwm3_6Info.minDeg);
-//      pwm3_Servo7.attach(pwm3_7Info.pinNum, 2400, 620);
-//      pwm3_Servo7.write(pwm3_7Info.minDeg);
-
-
-    //const int pwm2BuzzSlide_Pin = 1;
-    //const int pwm2LeftBreadPan_Pin = 4;
-    //const int pwm2RightBreadPan_Pin = 6;
-    //const int pwm2CBIDoor_Pin = 7;
-    //const int pwm2LowerUtil_Pin = 8;
-    //const int pwm2UpperUtil_Pin = 9;
-    //const int pwm2BuzzDoor_Pin = 11;
-    //const int pwm2GripperLift_Pin = 12;
-    //const int pwm2Gripper_Pin = 13;
-    //const int pwm2InterfaceLift_Pin = 14;
-    //const int pwm2Interface_Pin = 15;
-#pragma mark -
-#pragma mark AttachServos
-      //pwm1_Servo4.attach(pwm1_4Info.pinNum, 544, 2400);//DataPanel Door
-      pwm1_Servo4.attach(pwm1_4Info.pinNum, 1735, 2165);//DataPanel Door
-      //pwm1_Servo4.setReverseOperation(true);
-      //pwm1_Servo4.write(pwm1_4Info.minDeg); //
-
-
-      pwm2_Servo1.attach(pwm2_1Info.pinNum, 544, 2400, -100, 100);//Buzz Slide
-    if(digitalRead(PIN_BUZZSLIDELIMIT) == HIGH){
-        pwm2_Servo1.startEaseTo(100); //  Only move the Servo if the limit is not met and then only until limit so use non-blocking
-    }
-
-      pwm2_Servo4.attach(pwm2_4Info.pinNum, 1650, 2150);//Gripper Door
-      //pwm2_Servo4.write(pwm2_4Info.minDeg); //
-      pwm2_Servo6.attach(pwm2_6Info.pinNum, 1800, 2270);//Interface Door 2258
-      pwm2_Servo6.setReverseOperation(true);
-      //pwm2_Servo6.write(pwm2_6Info.minDeg); //
-      pwm2_Servo7.attach(pwm2_7Info.pinNum, 1575, 2025);//CBI Door, 1980,1936
-      pwm2_Servo7.setReverseOperation(true);
-      //pwm2_Servo7.write(pwm2_7Info.minDeg);
-      pwm2_Servo8.attach(pwm2_8Info.pinNum, 480, 1848); //Lower UtiltyArm
-      //pwm2_Servo8.attach(pwm2_8Info.pinNum, 511, 1848); //Lower UtiltyArm
-      pwm2_Servo8.setReverseOperation(true);
-      //pwm2_Servo8.write(pwm2_8Info.minDeg);
-      pwm2_Servo9.attach(pwm2_9Info.pinNum, 660, 2139);//Upper UtilityArm
-      pwm2_Servo9.setReverseOperation(true);
-      //pwm2_Servo9.write(pwm2_9Info.minDeg);
-      pwm2_Servo11.attach(pwm2_11Info.pinNum, 650,2305);//Buzz Door, 690,935-1797,2295
-      //pwm2_Servo11.setEasingType(EASE_LINEAR);
-      pwm2_Servo11.setReverseOperation(true);
-      //pwm2_Servo11.write(pwm2_11Info.minDeg); //
-      pwm2_Servo12.attach(pwm2_12Info.pinNum, 700, 2200);//Gripper Lift
-      //pwm2_Servo12.write(pwm2_12Info.minDeg); //
-      pwm2_Servo13.attach(pwm2_13Info.pinNum, 2000, 2600);//Gripper
-      pwm2_Servo13.setReverseOperation(true);
-      //pwm2_Servo13.write(pwm2_13Info.minDeg); //
-      pwm2_Servo14.attach(pwm2_14Info.pinNum, 700, 2200);//InterfaceLifter
-      pwm2_Servo14.setReverseOperation(true);
-      //pwm2_Servo14.write(pwm2_14Info.minDeg); //InterfaceLifter
-      pwm2_Servo15.attach(pwm2_15Info.pinNum, 737, 1850);//Interface5
-      //pwm2_Servo15.write(pwm2_15Info.minDeg); //Interface
-
-      pwm3_Servo1.attach(pwm3_1Info.pinNum,920,1600);//Pie 1
-      pwm3_Servo1.setReverseOperation(true);
-      //pwm3_Servo1.write(pwm3_1Info.minDeg);
-      pwm3_Servo2.attach(pwm3_2Info.pinNum, 1064,1660);//Pie 2
-      pwm3_Servo2.setReverseOperation(true);
-      //pwm3_Servo2.write(pwm3_2Info.minDeg);
-      pwm3_Servo3.attach(pwm3_3Info.pinNum, 980,1568);//Pie 3
-      pwm3_Servo3.setReverseOperation(true);
-      //pwm3_Servo3.write(pwm3_3Info.minDeg);
-      pwm3_Servo4.attach(pwm3_4Info.pinNum,873,1575);//Pie 4
-      pwm3_Servo4.setReverseOperation(true);
-      //pwm3_Servo4.write(pwm3_4Info.minDeg);
-      pwm3_Servo5.attach(pwm3_5Info.pinNum, 840,1625);//Pie 5
-      pwm3_Servo5.setReverseOperation(true);
-      //pwm3_Servo5.write(pwm3_5Info.minDeg);
-      pwm3_Servo6.attach(pwm3_6Info.pinNum, 1185,1855);//Pie 6
-      pwm3_Servo6.setReverseOperation(true);
-      //pwm3_Servo6.write(pwm3_6Info.minDeg);
-      pwm3_Servo7.attach(pwm3_7Info.pinNum, 608, 1260);//Pie 7
-      pwm3_Servo7.setReverseOperation(true);
-      //pwm3_Servo7.write(pwm3_7Info.minDeg);
-
-    setSpeedForAllServos(600);//300,make servos fast. Go double since all servos think they are going 180 degrees but they are really only going 90 or less
-
-
-   if(pwm3_Servo7.attach(pwm3_7Info.pinNum, 608, 1260) == INVALID_SERVO) {
-       Serial.print(F("Error attaching servo - maybe MAX_EASING_SERVOS="));
-       Serial.print(MAX_EASING_SERVOS);
-       Serial.println(F(" is to small to hold all servos"));
-//       while (true) {
-//           digitalWrite(LED_BUILTIN, HIGH);
-//           delay(100);
-//           digitalWrite(LED_BUILTIN, LOW);
-//           delay(100);
-//       }
-   }
-    /////////////////////////////////////////////////////////////////
-
-    #else
-      Serial.print(F("\r\nNot Using Servo Easing"));
-
-      pwm1.begin();
-      pwm1.setPWMFreq(62);  // This is the maximum PWM frequency
-
-      pwm2.begin();
-      pwm2.setPWMFreq(62);  // This is the maximum PWM frequency
-
-      pwm3.begin();
-      pwm3.setPWMFreq(62);  // This is the maximum PWM frequency
-
-      pwm1.setPWM(15, 0, pwm1_15_min); // Extinguisher
-      delay(100);
-      pwm1.setPWM(10, 0, 0); //Rear bolt door
-    #endif
-
-    Serial.print(F("\r\nEnd PWM SetUp"));
-
-
 
     // ZAPPER and BUZZSAW SETUP
     pinMode(smDirectionPin, OUTPUT);
@@ -3097,26 +1867,9 @@ void setup(){
     centerDomeLoop();
     closeAll();
 
-    #ifdef SERVO_EASING
-      //I don't have the card dispensing drawer, yet
-    #else
-    pwm1.setPWM(12, 0, pwm1_12_max); // Panel Drawer
-      delay(150);
-      pwm1.setPWM(12, 0, 0); // Panel Drawer
-    #endif
 
-    #ifdef SERVO_EASING
 
-    #else
-      //I use a NeoPixel strip  No neeed for this
-      //    // TURN ON LEDS
-      //    pwm3.setPWM(10,0,pwm3_10_max);
-      //    pwm3.setPWM(11,0,pwm3_11_max);
-      //    pwm3.setPWM(12,0,pwm3_12_max);
-      //    pwm3.setPWM(13,0,pwm3_13_max);
-      //    pwm3.setPWM(14,0,pwm3_14_max);
-      //    pwm3.setPWM(15,0,0);
-      #endif
+
 
 
     //PLay MP3 Trigger sound
@@ -3162,7 +1915,6 @@ void loop(){
     if (cardLightsOn){
     bar16.update();
     }
-
 
 
 }
